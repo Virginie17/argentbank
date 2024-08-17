@@ -1,15 +1,11 @@
-import { FC } from 'react';
+
 import '../styles/main.css'
-
-interface TransactionProps {
-    title: string;
-    amount: string;
-    description: string;
-}
+import type { TransactionProps } from '../type';
 
 
 
-const Transaction: FC<TransactionProps> = ({ title, amount, description }) => (
+
+const Transaction: React.FC<TransactionProps> = ({ title, amount, description }) => (
   <section className="account">
     <div className="account-content-wrapper">
       <h3 className="account-title">{title}</h3>

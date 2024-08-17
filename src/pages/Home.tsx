@@ -6,7 +6,8 @@ import iconMoney from '../img/icon-money.webp';
 import iconSecurity from '../img/icon-security.webp';
 
 
-const Home = () => (
+
+const Home: React.FC = () => (
   <div>
     <main>
       <div className="hero">
@@ -21,7 +22,7 @@ const Home = () => (
       <section className="features">
         <h2 className="sr-only">Features</h2>
         <FeatureItem
-          imgSrc={iconChat}
+            imgSrc={iconChat}
           title="You are our #1 priority"
           description="Need to talk to a representative? You can get in touch through our 24/7 chat or through a phone call in less than 5 minutes."
         />
