@@ -1,24 +1,16 @@
-
+import { FC } from 'react';
 import FeatureItem from '../components/FeatureItem';
-import '../styles/main.css'
-import iconChat from '../img/icon-chat.webp';
-import iconMoney from '../img/icon-money.webp';
-import iconSecurity from '../img/icon-security.webp';
+import Hero from '../components/Hero';
+import iconChat from '../assets/img/icon-chat.webp';
+import iconMoney from '../assets/img/icon-money.webp';
+import iconSecurity from '../assets/img/icon-security.webp';
 
 
 
-const Home: React.FC = () => (
-  <div>
-    <main>
-      <div className="hero">
-        <section className="hero-content">
-          <h2 className="sr-only">Promoted Content</h2>
-          <p className="subtitle">No fees.</p>
-          <p className="subtitle">No minimum deposit.</p>
-          <p className="subtitle">High interest rates.</p>
-          <p className="text">Open a savings account with Argent Bank today!</p>
-        </section>
-      </div>
+const Home: FC = () => {
+  return (
+    <main id='main'>
+      <Hero />
       <section className="features">
         <h2 className="sr-only">Features</h2>
         <FeatureItem
@@ -38,7 +30,8 @@ const Home: React.FC = () => (
         />
       </section>
     </main>
-  </div>
-);
+  );
+};
+
 
 export default Home;

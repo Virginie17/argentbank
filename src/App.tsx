@@ -1,8 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Home from "./pages/Home"
 import User from "./pages/User"
-import Signin from "./pages/Signin"
-import Error from "./pages/Error"
+import Login from "./pages/Login"
 import Header from "./components/Header"
 import Footer from "./components/Footer"
 
@@ -12,9 +11,8 @@ const App = () => {
             <Header />
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/profile" element={<User />} />
-                <Route path="/login" element={<Signin />} />
-                <Route path="*" element={<Error />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/user" element={<User />} />
             </Routes>
             <Footer />
         </BrowserRouter>

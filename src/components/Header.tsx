@@ -1,26 +1,40 @@
+import { FC } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from '../store/auth';
+import { Link, useNavigate } from "react-router-dom";
+import { authActions } from '../store/auth';
+import Logo from "./Logo";
+import Navbar from "./Navbar";
 
-import { Link } from 'react-router-dom';
-import '../styles/main.css'
-import argentBankLogo from '../img/argentBankLogo.webp';
+const Header: FC = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const firstName = useSelector((state: RootState) => state.auth.user.displayableName?.split(" ")[0]);
 
-const Header = () => (
-  <nav className="main-nav">
-    <Link className="main-nav-logo" to="/">
-      <img
-        className="main-nav-logo-image"
-        src={argentBankLogo}
-        alt="Argent Bank Logo"
-      />
-      <h1 className="sr-only">Argent Bank</h1>
-    </Link>
-    <div>
-      <Link className="main-nav-item" to="/sign-in">
-        <i className="fa fa-user-circle"></i>
-        Sign In
-      </Link>
-    </div>
-  </nav>
-);
+  const logoutHandler = () => {
+    dispatch(authActions.logout());
+    navigate("/sign-in", { replace: true });
+  };
+
+  return (
+    <Navbar>
+      <Logo />
+      <div>
+        <Link to={isAuthenticated ? "/user" : "/sign-in"} className="main-nav-item">
+          <i className="fa fa-user-circle"></i>
+          {isAuthenticated ? firstName : "Sign in"}
+        </Link>
+        {isAuthenticated && (
+          <Link to="/" className="main-nav-item" onClick={logoutHandler}>
+            <i className="fa fa-sign-out"></i>
+            Sign Out
+          </Link>
+        )}
+      </div>
+    </Navbar>
+  );
+};
 
 export default Header;

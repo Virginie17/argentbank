@@ -1,11 +1,11 @@
+import { FC } from "react";
 
-import '../styles/main.css'
-
-
-const Footer = () => (
-  <footer className="footer">
-    <p className="footer-text">Copyright 2020 Argent Bank</p>
-  </footer>
-);
+const Footer: FC = () => {
+  return (
+    <footer id="footer" className="footer">
+      <p className="footer-text">Copyright 2020 Argent Bank</p>
+    </footer>
+  );
+};
 
 export default Footer;

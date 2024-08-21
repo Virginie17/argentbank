@@ -1,6 +1,11 @@
 
 import '../styles/main.css'
-import type { FeatureItemprops } from '../type';
+
+type FeatureItemprops = {
+  imgSrc: string;
+  title: string;
+  description: string;
+}
 
 
 
