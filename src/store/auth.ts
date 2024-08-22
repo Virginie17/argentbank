@@ -1,53 +1,60 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { configureStore } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-
-interface AuthState {
-  token: string | null;
-  expirationTime: string | null;
+type SliceState = {
   isAuthenticated: boolean;
   user: {
-    displayableName: string;
+    id: string | null;
+    displayableName: string | null;
+    email: string | null;
   };
-  name: string | null;
+};
+
+interface ILogin {
+  token: string;
+  expirationTime: string;
 }
 
-const initialState: AuthState = {
-  token: null,
-  expirationTime: null,
+interface IProfile {
+  id: string;
+  name: string;
+  email: string;
+}
+
+const initialState: SliceState = {
   isAuthenticated: false,
   user: {
-    displayableName: '',
+    id: null,
+    displayableName: null,
+    email: null,
   },
-  name: null,
 };
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
-    login(state, action: PayloadAction<{ token: string; expirationTime: string }>) {
-      state.token = action.payload.token;
-      state.expirationTime = action.payload.expirationTime;
+    login(state, action: PayloadAction<ILogin>) {
+      const payload = action.payload;
+      localStorage.setItem("token", payload.token);
+      localStorage.setItem("expirationTime", payload.expirationTime);
+      state.isAuthenticated = true;
+    },
+    getProfile(state, action: PayloadAction<IProfile>) {
+      const payload = action.payload;
+      state.user.id = payload.id;
+      state.user.displayableName = payload.name;
+      state.user.email = payload.email;
+    },
+    retrieveStoredToken(state) {
       state.isAuthenticated = true;
     },
     logout(state) {
-      state.token = null;
-      state.expirationTime = null;
-      state.isAuthenticated = false;
+      localStorage.removeItem("token");
+      localStorage.removeItem("expirationTime");
+      return (state = initialState);
     },
   },
 });
 
 export const authActions = authSlice.actions;
-
-const store = configureStore({
-  reducer: {
-    auth: authSlice.reducer,
-  },
-});
-
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
-
-export default store;
+export default authSlice;

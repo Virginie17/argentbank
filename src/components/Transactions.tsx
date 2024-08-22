@@ -1,6 +1,6 @@
 import { FC } from "react";
 
-import Button from "../components/Button";
+import Button from "./Button";
 
 interface TransactionProps {
   title: string;
