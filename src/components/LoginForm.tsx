@@ -67,7 +67,6 @@ const LoginForm: React.FC = () => {
         <label htmlFor="remember-me">Remember me</label>
       </InputValidator>
       <button className="sign-in-button">Sign In</button>
-
       {!isUser && (
         <p className="login-error">Wrong email/password combination</p>
       )}
