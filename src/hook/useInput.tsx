@@ -1,12 +1,29 @@
-import React, { useState } from "react";
-
-export const useInput = (initialValue: string) => {
-    const [value, setValue] = useState(initialValue);
-    const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setValue(e.target.value);
+import { useState } from "react";
+const useInput = (validateValue: (value: string) => boolean) => {
+    const [enteredValue, setEnteredValue] = useState("");
+    const [isValid, setIsValid] = useState(false);
+  
+    const valueChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setEnteredValue(event.target.value);
+      setIsValid(validateValue(event.target.value));
     };
-    return { value, onChange };
-};
-
-export default useInput;
-
+  
+    const inputBlurHandler = () => {
+      setIsValid(validateValue(enteredValue));
+    };
+  
+    const reset = () => {
+      setEnteredValue("");
+      setIsValid(false);
+    };
+  
+    return {
+      value: enteredValue,
+      isValid,
+      hasError: !isValid && enteredValue.trim() !== "",
+      valueChangeHandler,
+      inputBlurHandler,
+      reset,
+    };
+  };
+  export default useInput

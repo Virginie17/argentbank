@@ -1,16 +1,18 @@
-import React, { useState } from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import Button from "./Button";
 import Input from "./Input";
 import InputValidator from "./InputValidator";
 import useInput from "../hook/useInput";
 
 interface EditFormProps {
- setstate: React.Dispatch<React.SetStateAction<boolean>>;
- onclick: () => void;
+  setstate: Dispatch<SetStateAction<boolean>>;
+  onclick: () => void;
 }
 
 
-const EditForm: React.FC<EditFormProps> = () => {
+const isValidName = (value: string) => value.trim() !== "";
+
+const EditForm: React.FC<EditFormProps> = ({ setstate, onclick }) => {
   const {
     value: enteredName,
     isValid: enteredNameIsValid,
@@ -31,29 +33,42 @@ const EditForm: React.FC<EditFormProps> = () => {
 
   const token = localStorage.getItem("token");
 
-  let formIsValid: boolean = false;
+  let formIsValid = false;
 
   if (enteredFirstnameIsValid && enteredNameIsValid) {
     formIsValid = true;
   }
 
-  const submitHandler = (event: React.FormEvent<HTMLFormElement>) => {
+  const submitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!formIsValid) return;
 
-    
     try {
-      fetch("http://localhost:3001/api/v1/user/profile", {
+      const response = await fetch("http://localhost:3001/api/v1/user/profile", {
         method: "PATCH",
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log(data);
-        });
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          firstName: enteredFirstname,
+          lastName: enteredName,
+        }),
+      });
+
+      const data = await response.json();
+      console.log(data);
     } catch (error) {
       console.log(error);
     }
+
+    resetNameInput();
+    resetFirstnameInput();
+    setstate(false);
+    onclick();
+  };
+
   return (
     <form onSubmit={submitHandler}>
       <div className="edit-form">
@@ -69,7 +84,14 @@ const EditForm: React.FC<EditFormProps> = () => {
           {firstnameInputHasError && <p className="error-input">Invalid field</p>}
         </InputValidator>
         <InputValidator className="input-wrapper">
-          <Input id="lastname" className="edit-input" placeholder="LastName" value={enteredName} onChange={nameChangeHandler} onBlur={nameBlurHandler} />
+          <Input
+            id="lastname"
+            className="edit-input"
+            placeholder="LastName"
+            value={enteredName}
+            onChange={nameChangeHandler}
+            onBlur={nameBlurHandler}
+          />
           {nameInputHasError && <p className="error-input">Invalid field</p>}
         </InputValidator>
       </div>
@@ -77,15 +99,12 @@ const EditForm: React.FC<EditFormProps> = () => {
         <Button type="submit" label="Save modifications" className="edit-button">
           Save
         </Button>
-        <Button label="Cancel modifications" className="edit-button" onClick={}>
+        <Button label="Cancel modifications" className="edit-button" onClick={() => setstate(false)}>
           Cancel
         </Button>
       </div>
     </form>
   );
-  }
 };
 
-
-
-export default EditForm
+export default EditForm;

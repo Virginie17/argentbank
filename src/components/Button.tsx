@@ -3,7 +3,7 @@ import { ButtonHTMLAttributes, Dispatch, FC, ReactNode, SetStateAction, memo } f
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   label?: string;
-  onClick?: () => Dispatch<SetStateAction<boolean>>;
+  onClick?: () => Dispatch<SetStateAction<boolean>> | void;
 }
 
 const Button: FC<ButtonProps> = ({ onClick, children, ...rest }) => {

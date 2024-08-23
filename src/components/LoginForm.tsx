@@ -44,7 +44,7 @@ const LoginForm: React.FC = () => {
         };
       
         setIsUser(true);
-          dispatch(authActions.login(payload));
+          dispatch(authActions.Login(payload));
           navigate("/user", { replace: true });
         })
         .catch(() => setIsUser(false));
@@ -60,7 +60,7 @@ const LoginForm: React.FC = () => {
       </InputValidator>
       <InputValidator className="input-wrapper">
         <label htmlFor="password">Password</label>
-        <Input id="password" type="password" ref={enteredPasswordInputRef} />
+        <Input id="username" ref={enteredUsernameInputRef} />
       </InputValidator>
       <InputValidator className="input-remember">
         <Input id="remember-me" type="checkbox" ref={rememberMeValueRef} />

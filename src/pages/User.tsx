@@ -1,14 +1,54 @@
 import { FC, useState, useEffect } from 'react';
-import { RootState } from '../store/auth';
+import { RootState } from '../store';
 import { useSelector, useDispatch } from 'react-redux';
-import Transaction from '../data/transaction.json';
 import { authActions } from '../store/auth';
-import Transactions from '../components/Transactions';
-import Button from '../components/Button';
 import EditForm from '../components/EditForm';
 
-
 const User: FC = () => {
+  const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.auth.user) as { token: string | null; id: string | null; displayableName: string | null; email: string | null; firstName: string | null; lastName: string | null; };
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    fetch('http://localhost:3001/api/v1/user/me', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${user?.token}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        dispatch(authActions.Login(data));
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+
+    fetch('http://localhost:3001/api/v1/transactions', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${user?.token}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        dispatch(authActions.setTransactions(data));
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  }, [dispatch, user?.token]);
+
+  const handleEditClick = () => {
+    setIsEditing((prevState) => !prevState);
+  };
+
+  const handleSignOut = () => {
+    dispatch(authActions.logout());
+  };
+
   return (
     <div>
       <nav className="main-nav">
@@ -23,9 +63,9 @@ const User: FC = () => {
         <div>
           <a className="main-nav-item" href="./user.html">
             <i className="fa fa-user-circle"></i>
-            Tony
+            {user?.firstName || 'User'}
           </a>
-          <a className="main-nav-item" href="./index.html">
+          <a className="main-nav-item" href="./index.html" onClick={handleSignOut}>
             <i className="fa fa-sign-out"></i>
             Sign Out
           </a>
@@ -33,8 +73,11 @@ const User: FC = () => {
       </nav>
       <main className="main bg-dark">
         <div className="header">
-          <h1>Welcome back<br />Tony Jarvis!</h1>
-          <button className="edit-button">Edit Name</button>
+          <h1>Welcome back<br />{user?.firstName} {user?.lastName}!</h1>
+          <button className="edit-button" onClick={handleEditClick}>
+            {isEditing ? 'Cancel' : 'Edit Name'}
+          </button>
+          {isEditing && <EditForm setstate={setIsEditing} onclick={handleEditClick} />}
         </div>
         <h2 className="sr-only">Accounts</h2>
         <section className="account">
@@ -73,6 +116,6 @@ const User: FC = () => {
       </footer>
     </div>
   );
-}
+};
 
 export default User;
