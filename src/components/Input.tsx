@@ -1,30 +1,11 @@
-interface InputProps {
-  id: string;
-  className?: string; 
-  placeholder?: string;
-  value?: string;
-  type?: string;
- ref?: React.RefObject<HTMLInputElement>;
- token?: string 
+import React, { forwardRef } from 'react';
 
-  
-  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  id: string;
 }
 
-const Input: React.FC<InputProps> = ({ id, className, placeholder, value, type = "text", onChange, onBlur }, ref) => {
-  return (
-    <input
-      id={id}
-      className={className}
-      placeholder={placeholder}
-      value={value}
-      type={type}
-      onChange={onChange}
-      onBlur={onBlur}
-      ref={ref}
-    />
-  );
-};
+const Input = forwardRef<HTMLInputElement, InputProps>(({ id, ...props }, ref) => (
+  <input id={id} ref={ref} {...props} />
+));
 
 export default Input;

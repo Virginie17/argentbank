@@ -1,66 +1,24 @@
-import React, { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { authActions } from "../store/auth";
-
-import InputValidator from "./InputValidator";
-import Input from "./Input";
+import React, { useRef } from 'react';
+import Input from './Input';
+import InputValidator from './InputValidator';
 
 const LoginForm: React.FC = () => {
   const enteredUsernameInputRef = useRef<HTMLInputElement>(null);
   const enteredPasswordInputRef = useRef<HTMLInputElement>(null);
   const rememberMeValueRef = useRef<HTMLInputElement>(null);
 
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-
-  const [isUser, setIsUser] = useState<boolean>(true);
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const formValues = {
-      email: enteredUsernameInputRef.current?.value,
-      password: enteredPasswordInputRef.current?.value,
-    };
-
-    try {
-      fetch("http://localhost:3001/api/v1/user/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formValues),
-      })
-        
-      .then(async (res) => {
-        if (res.status !== 200) return;
-      
-        const responseJson = await res.json();
-        const expirationTime = new Date(new Date().getTime() + 86400 * 1000); //1day valid token
-        const payload = {
-          token: responseJson.body.token,
-          expirationTime: expirationTime.toISOString(),
-        };
-      
-        setIsUser(true);
-          dispatch(authActions.Login(payload));
-          navigate("/user", { replace: true });
-        })
-        .catch(() => setIsUser(false));
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  
+  const isUser = true;
+  
   return (
-    <form onSubmit={handleSubmit}>
-      <InputValidator className="input-wrapper wrappers">
+    <form>
+      <InputValidator className="input-wrapper">
         <label htmlFor="username">Username</label>
         <Input id="username" ref={enteredUsernameInputRef} />
       </InputValidator>
       <InputValidator className="input-wrapper">
         <label htmlFor="password">Password</label>
-        <Input id="username" ref={enteredUsernameInputRef} />
+        <Input id="password" ref={enteredPasswordInputRef} />
       </InputValidator>
       <InputValidator className="input-remember">
         <Input id="remember-me" type="checkbox" ref={rememberMeValueRef} />
