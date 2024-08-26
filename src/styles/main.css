@@ -71,7 +71,7 @@ body {
 }
 
 .hero {
-  background-image: url('../assets/img/bank-tree.webp');
+  background-image: url("../assets/img/bank-tree.webp");
   background-position: 0 -50px;
   background-size: cover;
   background-repeat: no-repeat;
@@ -191,6 +191,7 @@ body {
   flex-direction: column;
   text-align: left;
   margin-bottom: 1rem;
+  position: relative;
 }
 
 .input-wrapper label {
@@ -288,4 +289,63 @@ body {
   .transaction-button {
     width: 200px;
   }
+}
+
+.edit-section {
+  width:40%;
+  margin: auto;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+}
+.edit-form {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  column-gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
+.edit-input {
+  width: 95%;
+}
+.edit-button {
+    display: block;
+    width: 150px;
+    padding: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin: 0 5px;
+    border-color: #00bc77;
+    background-color: #00bc77;
+    color: #fff;
+    cursor: pointer;
+}
+
+.flex{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width:1000px) {
+  .edit-section {
+    width: 350px;
+  }
+  .edit-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+.error-input {
+  color: red;
+  position: absolute;
+  top: 0;
+  right: 5px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.login-error {
+  color: red;
+  font-weight: 700;
 }

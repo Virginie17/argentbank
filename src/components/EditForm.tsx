@@ -9,7 +9,6 @@ interface EditFormProps {
   onclick: () => void;
 }
 
-
 const isValidName = (value: string) => value.trim() !== "";
 
 const EditForm: React.FC<EditFormProps> = ({ setstate, onclick }) => {
@@ -31,40 +30,27 @@ const EditForm: React.FC<EditFormProps> = ({ setstate, onclick }) => {
     reset: resetFirstnameInput,
   } = useInput(isValidName);
 
-  const token = localStorage.getItem("token");
-
   let formIsValid = false;
 
   if (enteredFirstnameIsValid && enteredNameIsValid) {
     formIsValid = true;
   }
 
-  const submitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
+  const submitHandler = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!formIsValid) return;
 
-    try {
-      const response = await fetch("http://localhost:3001/api/v1/user/profile", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          firstName: enteredFirstname,
-          lastName: enteredName,
-        }),
-      });
+    const formValues = {
+      firstName: enteredFirstname,
+      lastName: enteredName,
+    };
 
-      const data = await response.json();
-      console.log(data);
-    } catch (error) {
-      console.log(error);
-    }
+    
+    console.log("Form submitted", formValues);
 
-    resetNameInput();
     resetFirstnameInput();
+    resetNameInput();
     setstate(false);
     onclick();
   };
@@ -84,14 +70,7 @@ const EditForm: React.FC<EditFormProps> = ({ setstate, onclick }) => {
           {firstnameInputHasError && <p className="error-input">Invalid field</p>}
         </InputValidator>
         <InputValidator className="input-wrapper">
-          <Input
-            id="lastname"
-            className="edit-input"
-            placeholder="LastName"
-            value={enteredName}
-            onChange={nameChangeHandler}
-            onBlur={nameBlurHandler}
-          />
+          <Input id="lastname" className="edit-input" placeholder="LastName" value={enteredName} onChange={nameChangeHandler} onBlur={nameBlurHandler} />
           {nameInputHasError && <p className="error-input">Invalid field</p>}
         </InputValidator>
       </div>
