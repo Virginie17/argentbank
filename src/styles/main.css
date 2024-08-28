@@ -307,9 +307,9 @@ body {
 }
 .edit-input {
   width: 95%;
+  
 }
 .edit-button {
-    display: block;
     width: 150px;
     padding: 8px;
     font-size: 1.1rem;

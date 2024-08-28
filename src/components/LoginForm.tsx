@@ -2,18 +2,11 @@ import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { authActions } from '../store/auth';
+import { ILogin }  from '../store/auth';
 
 import InputValidator from '../components/InputValidator';
 import Input from '../components/Input';
 
-interface ILogin {
-  email: string;
-  password: string;
-  token: string;
-  expirationTime: string;
-  username?: string;
-  rememberMe?: boolean;
-}
 
 const LoginForm: React.FC = () => {
   const enteredUsernameInputRef = useRef<HTMLInputElement>(null);
@@ -51,15 +44,15 @@ const LoginForm: React.FC = () => {
       const data = await response.json();
       const expirationTime = new Date(new Date().getTime() + 86400 * 1000); // 1 day valid token
       const payload: ILogin = {
-        username: formValues.email!,
+        userName: formValues.email!,
         password: formValues.password!,
-        rememberMe: rememberMeValueRef.current?.value,
+        rememberMe: rememberMeValueRef.current?.value === 'true',
         token: data.body.token,
         expirationTime: expirationTime.toISOString(),
       };
 
       setIsUser(true);
-      dispatch(authActions.Login(payload));
+      dispatch(authActions.login(payload));
       navigate('/user', { replace: true });
     } catch {
       setIsUser(false);

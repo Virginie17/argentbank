@@ -10,14 +10,18 @@ type SliceState = {
   };
 };
 
-interface ILogin {
+export interface ILogin {
   token: string;
   expirationTime: string;
+  userName: string;
+  password: string;
+  rememberMe: boolean;
+ 
 }
 
 interface IProfile {
   id: string;
-  name: string;
+  userName: string;
   email: string;
 }
 
@@ -43,16 +47,17 @@ const authSlice = createSlice({
     getProfile(state, action: PayloadAction<IProfile>) {
       const payload = action.payload;
       state.user.id = payload.id;
-      state.user.displayableName = payload.name;
+      state.user.displayableName = payload.userName;
       state.user.email = payload.email;
+
     },
     retrieveStoredToken(state) {
       state.isAuthenticated = true;
     },
-        logout(state) {
+        logout() {
       localStorage.removeItem("token");
       localStorage.removeItem("expirationTime");
-      return (state = initialState);
+      return ( initialState);
     },
   },
 });
