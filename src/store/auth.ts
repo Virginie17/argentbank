@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-
 type SliceState = {
   isAuthenticated: boolean;
   user: {
@@ -8,6 +7,9 @@ type SliceState = {
     displayableName: string | null;
     email: string | null;
   };
+ 
+  
+  
 };
 
 export interface ILogin {
@@ -16,7 +18,6 @@ export interface ILogin {
   userName: string;
   password: string;
   rememberMe: boolean;
- 
 }
 
 interface IProfile {
@@ -32,6 +33,7 @@ const initialState: SliceState = {
     displayableName: null,
     email: null,
   },
+  
 };
 
 const authSlice = createSlice({
@@ -49,19 +51,21 @@ const authSlice = createSlice({
       state.user.id = payload.id;
       state.user.displayableName = payload.userName;
       state.user.email = payload.email;
-
     },
     retrieveStoredToken(state) {
       state.isAuthenticated = true;
     },
-        logout() {
+    logout() {
       localStorage.removeItem("token");
       localStorage.removeItem("expirationTime");
-      return ( initialState);
+      return initialState;
     },
+    setUserName(state, action: PayloadAction<string>) {
+      state.user.displayableName = action.payload;
+    },
+    
   },
 });
-
 
 export const authActions = authSlice.actions;
 export default authSlice;

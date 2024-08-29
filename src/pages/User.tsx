@@ -45,16 +45,16 @@ const User: FC = () => {
         .then((response) => response.json())
         .then((data) => {
           dispatch(authActions.setTransactions(data));
+          
         })
         .catch((error) => {
           console.error('Error:', error);
         });
+
     }
   }, [dispatch, user?.token]);
 
-  // const handleEditClick = () => {
-  //   setIsEditing((prevState) => !prevState);
-  // };
+
 
   const handleEditing = () => {
     setnewUsername(user?.displayableName || '');
@@ -62,7 +62,7 @@ const User: FC = () => {
   };
 
   const changeUsername = async () => {
-    console.log("fetch method PUT changeUserName"); // code qui change le pseudo dans la BDD
+    console.log("fetch method PUT changeUserName"); 
   };
 
   const handleSaveNewUsername = async () => {
@@ -70,14 +70,14 @@ const User: FC = () => {
       return;
     }
     try {
-      dispatch(authActions.setUserName({ ...user, displayableName: newUsername })); // adapter reducer
+      dispatch(authActions.setUserName(newUsername)); 
       setIsEditing(false);
 
-      const payload = { // erreur car il doit etre mis en paramètre de changeUsername()
+      const payload = { 
         userName: newUsername,
       };
 
-      await changeUsername(); // fonction qui change le pseudo dans la BDD (parametre (payload et token)
+      await changeUsername(payload); 
     } catch (error) {
       console.error("Failed to change username:", error);
     }
