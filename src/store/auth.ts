@@ -1,30 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import type { SliceState, ILogin, IProfile } from "../types/user.type";
 
-// Définition du type pour l'état du slice
-type SliceState = {
-  isAuthenticated: boolean; 
-  user: {
-    id: string | null; 
-    displayableName: string | null; 
-    email: string | null; 
-  };
-};
-
-// Interface pour les informations de connexion
-export interface ILogin {
-  token: string; 
-  expirationTime: string; 
-  userName: string; 
-  password: string; 
-  rememberMe: boolean; 
-}
-
-// Interface pour le profil de l'utilisateur
-interface IProfile {
-  id: string; 
-  userName: string; 
-  email: string; 
-}
 
 // État initial du slice
 const initialState: SliceState = {
@@ -33,6 +9,8 @@ const initialState: SliceState = {
     id: null,
     displayableName: null,
     email: null,
+    firstName: null, 
+    lastName: null
   },
 };
 
@@ -54,6 +32,8 @@ const authSlice = createSlice({
       state.user.id = payload.id; 
       state.user.displayableName = payload.userName; 
       state.user.email = payload.email; 
+      state.user.firstName = payload.firstName;
+      state.user.lastName = payload.lastName;
     },
     // Action pour récupérer le token stocké
     retrieveStoredToken(state) {

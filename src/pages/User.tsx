@@ -16,6 +16,8 @@ const User: FC = () => {
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [newUsername, setNewUsername] = useState<string>(user?.displayableName || '');
+  const [newFirstName, setNewFirstName] = useState<string>(user?.firstName || '');
+  const [newLastName, setNewLastName] = useState<string>(user?.lastName || '');
 
   useEffect(() => {
     if (user?.token) {
@@ -38,12 +40,13 @@ const User: FC = () => {
 
   const handleEditing = () => {
     setNewUsername(user?.displayableName || '');
+    setNewFirstName(user?.firstName || '');
+    setNewLastName(user?.lastName || '');
     setIsEditing(true);
   };
 
   const changeUsername = async () => {
     try {
-      console.log("fetch method PUT changeUserName"); 
       const response = await fetch('http://localhost:3001/api/v1/user/profile', {
         method: 'PUT',
         headers: {
@@ -52,6 +55,8 @@ const User: FC = () => {
         },
         body: JSON.stringify({
           displayableName: newUsername,
+          firstName: newFirstName,
+          lastName: newLastName,
         }),
       });
 
@@ -70,7 +75,7 @@ const User: FC = () => {
   };
 
   const handleSaveNewUsername = async () => {
-    if (newUsername.trim().length < 2) {
+    if (newUsername.trim().length < 2 || newFirstName.trim().length < 2 || newLastName.trim().length < 2) {
       return;
     }
     try {
@@ -81,8 +86,14 @@ const User: FC = () => {
     }
   };
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setNewUsername(e.target.value);
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>, field: string) => {
+    if (field === 'username') {
+      setNewUsername(e.target.value);
+    } else if (field === 'firstName') {
+      setNewFirstName(e.target.value);
+    } else if (field === 'lastName') {
+      setNewLastName(e.target.value);
+    }
   };
 
   return (
@@ -94,39 +105,90 @@ const User: FC = () => {
       </nav>
       <main className="main bg-dark">
         <div className="header">
-          <h1>Welcome back<br/>
-            {isEditing ? (
-              <input
-                className="edit-username-input"
-                type="text"
-                value={newUsername}
-                onChange={handleInputChange}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleSaveNewUsername();
-                  }
-                  if (e.key === "Escape" || e.key === "Esc") {
-                    setIsEditing(false);
-                  }
-                }}
-                autoFocus
-              />
-            ) : (
-              `${user?.displayableName || "[Pseudo]"}`
-            )}
-          !</h1>
           {isEditing ? (
-            <button
-              className="edit-button edit-button--save"
-              onClick={handleSaveNewUsername}>
-              Save Name
-            </button>
+            <div className="edit-user-info-container">
+              <div className="edit-user-info">
+                <h1>Edit user info</h1>
+                <div>
+                  <label htmlFor="username">User Name:</label>
+                  <input
+                    className="edit-username-input"
+                    type="text"
+                    value={newUsername}
+                    onChange={(e) => handleInputChange(e, 'username')}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleSaveNewUsername();
+                      }
+                      if (e.key === "Escape" || e.key === "Esc") {
+                        setIsEditing(false);
+                      }
+                    }}
+                    autoFocus
+                  />
+                </div>
+                <div>
+                  <label htmlFor="firstname">First Name:</label>
+                  <input
+                    className="edit-username-input"
+                    type="text"
+                    value={newFirstName}
+                    onChange={(e) => handleInputChange(e, 'firstName')}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleSaveNewUsername();
+                      }
+                      if (e.key === "Escape" || e.key === "Esc") {
+                        setIsEditing(false);
+                      }
+                    }}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="lastname">Last Name:</label>
+                  <input
+                    className="edit-username-input"
+                    type="text"
+                    value={newLastName}
+                    onChange={(e) => handleInputChange(e, 'lastName')}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleSaveNewUsername();
+                      }
+                      if (e.key === "Escape" || e.key === "Esc") {
+                        setIsEditing(false);
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+              <button
+                className="edit-button edit-button--save"
+                onClick={handleSaveNewUsername}
+              >
+                Save Name
+              </button>
+              <button
+                className="edit-button edit-button--cancel"
+                onClick={() => setIsEditing(false)}
+              >
+                Cancel
+              </button>
+            </div>
           ) : (
-            <button className="edit-button" onClick={handleEditing}>
-              Edit Name
-            </button>
+            <>
+              <h1>
+                Welcome back
+                <br />
+                {`${user?.displayableName || "[Username]"}`} !
+              </h1>
+              <button className="edit-button" onClick={handleEditing}>
+                Edit Name
+              </button>
+            </>
           )}
         </div>
+        
         <h2 className="sr-only">Accounts</h2>
         <section className="account">
           <div className="account-content-wrapper">

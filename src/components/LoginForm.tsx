@@ -2,11 +2,10 @@ import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { authActions } from '../store/auth';
-import { ILogin }  from '../store/auth';
-
+import { ILogin, IProfile }  from '../types/user.type';
 import InputValidator from '../components/InputValidator';
 import Input from '../components/Input';
-
+import { fetchUser } from '../services/userService';
 
 const LoginForm: React.FC = () => {
   const enteredUsernameInputRef = useRef<HTMLInputElement>(null);
@@ -56,6 +55,16 @@ const LoginForm: React.FC = () => {
 
       setIsUser(true);// Mise à jour de l'état si l'utilisateur est valide
       dispatch(authActions.login(payload));// Dispatch de l'action de connexion
+      const userData: IProfile = await fetchUser(data.body.token);
+      dispatch(
+        authActions.getProfile({
+          id: userData.id,
+          email: userData.email,
+          userName: userData.userName,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+        })
+      );
       navigate('/user', { replace: true }); // Navigation vers la page utilisateur
       
     } catch {
