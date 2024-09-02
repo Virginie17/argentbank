@@ -18,9 +18,11 @@ const LoginForm: React.FC = () => {
 
   const [isUser, setIsUser] = useState<boolean>(true);
 
+  // Gestionnaire de soumission du formulaire
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    // Récupération des valeurs des champs de saisie
     const formValues = {
       email: enteredUsernameInputRef.current?.value,
       password: enteredPasswordInputRef.current?.value,
@@ -28,6 +30,7 @@ const LoginForm: React.FC = () => {
     };
 
     try {
+      // Envoi de la requête de connexion à l'API
       const response = await fetch('http://localhost:3001/api/v1/user/login', {
         method: 'POST',
         headers: {
@@ -35,14 +38,14 @@ const LoginForm: React.FC = () => {
         },
         body: JSON.stringify(formValues),
       });
-
+ // Vérification du statut de la réponse
       if (response.status !== 200) {
-        setIsUser(false);
+        setIsUser(false);// Mise à jour de l'état si l'utilisateur n'est pas valide
         return;
       }
 
-      const data = await response.json();
-      const expirationTime = new Date(new Date().getTime() + 86400 * 1000); // 1 day valid token
+      const data = await response.json(); // Conversion de la réponse en JSON
+      const expirationTime = new Date(new Date().getTime() + 86400 * 1000); // Définition de l'expiration du token (1 jour)
       const payload: ILogin = {
         userName: formValues.email!,
         password: formValues.password!,
@@ -51,9 +54,10 @@ const LoginForm: React.FC = () => {
         expirationTime: expirationTime.toISOString(),
       };
 
-      setIsUser(true);
-      dispatch(authActions.login(payload));
-      navigate('/user', { replace: true });
+      setIsUser(true);// Mise à jour de l'état si l'utilisateur est valide
+      dispatch(authActions.login(payload));// Dispatch de l'action de connexion
+      navigate('/user', { replace: true }); // Navigation vers la page utilisateur
+      
     } catch {
       setIsUser(false);
     }

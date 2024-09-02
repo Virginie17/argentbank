@@ -5,7 +5,6 @@ import { authActions } from '../store/auth';
 
 const User: FC = () => {
   const dispatch = useDispatch();
-  
   const user = useSelector((state: RootState) => state.auth?.user) as {
     token: string | null;
     id: string | null;
@@ -16,11 +15,11 @@ const User: FC = () => {
   };
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [newUsername, setnewUsername] = useState<string>(user?.displayableName || '');
+  const [newUsername, setNewUsername] = useState<string>(user?.displayableName || '');
 
   useEffect(() => {
     if (user?.token) {
-      fetch('http://localhost:3001/api/v1/user/me', {
+      fetch('http://localhost:3001/api/v1/user/profile', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -34,35 +33,40 @@ const User: FC = () => {
         .catch((error) => {
           console.error('Error:', error);
         });
-
-      fetch('http://localhost:3001/api/v1/transactions', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${user.token}`,
-        },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          dispatch(authActions.setTransactions(data));
-          
-        })
-        .catch((error) => {
-          console.error('Error:', error);
-        });
-
     }
-  }, [dispatch, user?.token]);
-
-
+  }, [user?.token, dispatch]);
 
   const handleEditing = () => {
-    setnewUsername(user?.displayableName || '');
+    setNewUsername(user?.displayableName || '');
     setIsEditing(true);
   };
 
   const changeUsername = async () => {
-    console.log("fetch method PUT changeUserName"); 
+    try {
+      console.log("fetch method PUT changeUserName"); 
+      const response = await fetch('http://localhost:3001/api/v1/user/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user?.token}`,
+        },
+        body: JSON.stringify({
+          displayableName: newUsername,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error('Error:', response.statusText);
+        return;
+      }
+
+      const data = await response.json();
+      dispatch(authActions.login(data));
+      setIsEditing(false);
+      console.log('Username updated successfully:', data);
+    } catch (error) {
+      console.error('Failed to change username:', error);
+    }
   };
 
   const handleSaveNewUsername = async () => {
@@ -70,21 +74,15 @@ const User: FC = () => {
       return;
     }
     try {
-      dispatch(authActions.setUserName(newUsername)); 
+      await changeUsername();
       setIsEditing(false);
-
-      const payload = { 
-        userName: newUsername,
-      };
-
-      await changeUsername(payload); 
     } catch (error) {
-      console.error("Failed to change username:", error);
+      console.error("Failed to save new username:", error);
     }
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setnewUsername(e.target.value);
+    setNewUsername(e.target.value);
   };
 
   return (
@@ -96,26 +94,26 @@ const User: FC = () => {
       </nav>
       <main className="main bg-dark">
         <div className="header">
-          <h1>Welcome back<br/>{user?.displayableName}
-          {isEditing ? (
-            <input
-              className="edit-username-input"
-              type="text"
-              value={newUsername || user?.displayableName || ''}
-              onChange={handleInputChange}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleSaveNewUsername();
-                }
-                if (e.key === "Escape" || e.key === "Esc") {
-                  setIsEditing(false);
-                }
-              }}
-              autoFocus
-            />
-          ) : (
-            `${user?.displayableName || "[Pseudo]"} `
-          )}
+          <h1>Welcome back<br/>
+            {isEditing ? (
+              <input
+                className="edit-username-input"
+                type="text"
+                value={newUsername}
+                onChange={handleInputChange}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSaveNewUsername();
+                  }
+                  if (e.key === "Escape" || e.key === "Esc") {
+                    setIsEditing(false);
+                  }
+                }}
+                autoFocus
+              />
+            ) : (
+              `${user?.displayableName || "[Pseudo]"}`
+            )}
           !</h1>
           {isEditing ? (
             <button

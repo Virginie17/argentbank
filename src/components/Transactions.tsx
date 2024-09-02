@@ -1,7 +1,7 @@
 import { FC } from "react";
-
 import Button from "./Button";
 
+//interface pour les props du composant Transaction
 interface TransactionProps {
   title: string;
   amount: string;

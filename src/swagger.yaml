@@ -1,0 +1,138 @@
+swagger: '2.0'
+info:
+  title: ArgentBank Transactions API
+  description: API for managing user transactions
+  version: '1.0.0'
+  termsOfService: 'http://swagger.io/terms/'
+host: localhost:3001
+basePath: /api/v1
+schemes:
+  - http
+paths:
+  /transactions:
+    get:
+      tags:
+        - Transactions
+      summary: Get all transactions for the current month
+      description: Retrieve all transactions for the current month, grouped by account
+      parameters:
+        - in: query
+          name: accountId
+          type: string
+          description: ID of the account to filter transactions (optional)
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Transactions retrieved successfully
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Transaction'
+        '400':
+          description: Invalid request parameters
+        '500':
+          description: Internal server error
+  /transactions/{transactionId}:
+    get:
+      tags:
+        - Transactions
+      summary: Get transaction details
+      description: Retrieve details of a specific transaction
+      parameters:
+        - in: path
+          name: transactionId
+          required: true
+          type: string
+          description: ID of the transaction to retrieve
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Transaction details retrieved successfully
+          schema:
+            $ref: '#/definitions/Transaction'
+        '404':
+          description: Transaction not found
+        '500':
+          description: Internal server error
+    put:
+      tags:
+        - Transactions
+      summary: Update transaction details
+      description: Update details of a specific transaction
+      parameters:
+        - in: path
+          name: transactionId
+          required: true
+          type: string
+          description: ID of the transaction to update
+        - in: body
+          name: body
+          description: Transaction details to update
+          required: true
+          schema:
+            $ref: '#/definitions/TransactionUpdate'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Transaction updated successfully
+          schema:
+            $ref: '#/definitions/Transaction'
+        '400':
+          description: Invalid request parameters
+        '404':
+          description: Transaction not found
+        '500':
+          description: Internal server error
+    delete:
+      tags:
+        - Transactions
+      summary: Delete transaction details
+      description: Delete details of a specific transaction
+      parameters:
+        - in: path
+          name: transactionId
+          required: true
+          type: string
+          description: ID of the transaction to delete
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Transaction deleted successfully
+        '404':
+          description: Transaction not found
+        '500':
+          description: Internal server error
+definitions:
+  Transaction:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Transaction ID
+      accountId:
+        type: string
+        description: Account ID associated with the transaction
+      amount:
+        type: number
+        description: Transaction amount
+      date:
+        type: string
+        format: date-time
+        description: Transaction date
+      description:
+        type: string
+        description: Transaction description
+  TransactionUpdate:
+    type: object
+    properties:
+      amount:
+        type: number
+        description: Transaction amount
+      description:
+        type: string
+        description: Transaction description
+

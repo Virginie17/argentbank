@@ -1,6 +1,6 @@
-
 import '../styles/main.css'
 
+// Définition du type pour les props du composant FeatureItem
 type FeatureItemprops = {
   imgSrc: string;
   title: string;
@@ -19,3 +19,4 @@ const FeatureItem: React.FC<FeatureItemprops> = ({ imgSrc, title, description })
 );
 
 export default FeatureItem;
+

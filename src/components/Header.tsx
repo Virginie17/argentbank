@@ -7,12 +7,15 @@ import Logo from "./Logo";
 import Navbar from "./Navbar";
 
 const Header: FC = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const dispatch = useDispatch();// Hook pour dispatcher des actions Redux
+  const navigate = useNavigate();// Hook pour naviguer 
 
+   // Sélection de l'état d'authentification depuis le store Redux
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+   // Sélection du prénom de l'utilisateur depuis le store Redux
   const firstName = useSelector((state: RootState) => state.auth.user.displayableName?.split(" ")[0]);
 
+// Gestionnaire de déconnexion
   const logoutHandler = () => {
     dispatch(authActions.logout());
     navigate("/sign-in", { replace: true });
