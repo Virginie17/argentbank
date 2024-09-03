@@ -36,50 +36,94 @@ body {
   white-space: nowrap !important; /* 3 */
 }
 
-/*formulaire edit user info*/
+/* Container principal pour la section d'édition */
 .edit-user-info-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 50vh; 
-}
-
-.edit-user-info {
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 400px;
-  background-color: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  height: 50px;
-}
-
-.edit-username-input {
-  width: 100%;
-  padding: 0.5rem;
-  margin: 0.5rem 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 20px;
+  border-radius: 5px;
   
 }
 
+/* Style pour le formulaire d'édition */
+.edit-user-info {
+  display: flex;
+  flex-direction: column;
+  gap:10px;
+  margin-bottom: 20px;
+}
+
+/* Input styles */
+.edit-username-input,
+.edit-firstname-input,
+.edit-lastname-input {
+  padding: 1rem;
+  margin: 1rem 0;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 1rem;
+  box-sizing: border-box;
+
+}
+
+/* Label styles */
+.edit-user-info label {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+margin-right: 8px;
+}
+
+/* Boutons */
 .edit-button {
   margin-top: 1rem;
-  padding: 0.5rem 1rem;
-  background-color: #007bff;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+  
+ 
+}
+.edit-user-info h1 {
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  
 }
 
 .edit-button--save {
-  background-color: #28a745;
+  background-color: #28a745;  /* Couleur pour le bouton de sauvegarde */
 }
 
+.edit-button--cancel {
+  background-color: #dc3545;  /* Couleur pour le bouton d'annulation */
+  margin-top: 0.5rem;
 
+}
+
+/* Réactivité pour les petits écrans */
+@media (max-width: 768px) {
+  .edit-user-info {
+    padding: 1rem;
+  }
+
+  .edit-username-input {
+    padding: 0.5rem;
+  }
+
+  .edit-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+}
 
 .main-nav {
   display: flex;

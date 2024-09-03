@@ -133,15 +133,7 @@ const User: FC = () => {
                     className="edit-username-input"
                     type="text"
                     value={newFirstName}
-                    onChange={(e) => handleInputChange(e, 'firstName')}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        handleSaveNewUsername();
-                      }
-                      if (e.key === "Escape" || e.key === "Esc") {
-                        setIsEditing(false);
-                      }
-                    }}
+                    readOnly
                   />
                 </div>
                 <div>
@@ -150,30 +142,24 @@ const User: FC = () => {
                     className="edit-username-input"
                     type="text"
                     value={newLastName}
-                    onChange={(e) => handleInputChange(e, 'lastName')}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        handleSaveNewUsername();
-                      }
-                      if (e.key === "Escape" || e.key === "Esc") {
-                        setIsEditing(false);
-                      }
-                    }}
+                    readOnly
                   />
                 </div>
               </div>
-              <button
-                className="edit-button edit-button--save"
-                onClick={handleSaveNewUsername}
-              >
-                Save Name
-              </button>
-              <button
-                className="edit-button edit-button--cancel"
-                onClick={() => setIsEditing(false)}
-              >
-                Cancel
-              </button>
+              <div className="edit-button-container">
+  <button
+    className="edit-button edit-button--save"
+    onClick={handleSaveNewUsername}
+  >
+    Save
+  </button>
+  <button
+    className="edit-button edit-button--cancel"
+    onClick={() => setIsEditing(false)}
+  >
+    Cancel
+  </button>
+</div>
             </div>
           ) : (
             <>
