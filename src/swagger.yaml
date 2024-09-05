@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
-  title: ArgentBank Transactions API
-  description: API for managing user transactions
+  title: Bank Argent API documentation
+  description: Contains all available API endpoints in this codebase
   version: '1.0.0'
   termsOfService: 'http://swagger.io/terms/'
 host: localhost:3001
@@ -9,130 +9,158 @@ basePath: /api/v1
 schemes:
   - http
 paths:
-  /transactions:
+  /user/{userId}/transactions:
+    parameters:
+      - name: userId
+        in: path
+        description: The ID of the user
+        required: true
+        type: string
     get:
+      security:
+        - Bearer: []
       tags:
-        - Transactions
-      summary: Get all transactions for the current month
-      description: Retrieve all transactions for the current month, grouped by account
+        - Transaction Module
+      summary: Current month's transactions
+      description: API to retrieve transactions for the current month, grouped by account
       parameters:
-        - in: query
-          name: accountId
+        - name: month
+          in: query
+          description: Month for which to retrieve transactions (YYYY-MM)
+          required: false
           type: string
-          description: ID of the account to filter transactions (optional)
-      produces:
-        - application/json
+          default: The current month
       responses:
-        '200':
-          description: Transactions retrieved successfully
+        "200":
+          description: Transactions successfully retrieved, grouped by account
           schema:
             type: array
             items:
-              $ref: '#/definitions/Transaction'
-        '400':
-          description: Invalid request parameters
-        '500':
+              $ref: "#/definitions/AccountTransactions"
+        "400":
+          description: Invalid fields
+        "401":
+          description: Unauthorized user
+        "404":
+          description: Invalid user ID
+        "500":
           description: Internal server error
-  /transactions/{transactionId}:
+  /user/transaction/{transactionId}:
+    parameters:
+      - name: transactionId
+        in: path
+        description: The ID of the transaction
+        required: true
+        type: string
     get:
+      security:
+        - Bearer: []
       tags:
-        - Transactions
-      summary: Get transaction details
-      description: Retrieve details of a specific transaction
-      parameters:
-        - in: path
-          name: transactionId
-          required: true
-          type: string
-          description: ID of the transaction to retrieve
+        - Transaction Module
+      summary: Transaction details
+      description: API to retrieve details of a specific transaction
       produces:
         - application/json
       responses:
-        '200':
-          description: Transaction details retrieved successfully
+        "200":
+          description: Transaction successfully retrieved
           schema:
-            $ref: '#/definitions/Transaction'
-        '404':
-          description: Transaction not found
-        '500':
+            $ref: "#/definitions/Transaction"
+        "401":
+          description: Unauthorized user
+        "404":
+          description: Invalid transaction ID
+        "500":
           description: Internal server error
-    put:
+    patch:
+      security:
+        - Bearer: []
       tags:
-        - Transactions
-      summary: Update transaction details
-      description: Update details of a specific transaction
+        - Transaction Module
+      summary: Update a transaction
+      description: API to update transaction information (only category and note can be modified)
       parameters:
-        - in: path
-          name: transactionId
-          required: true
-          type: string
-          description: ID of the transaction to update
         - in: body
           name: body
-          description: Transaction details to update
+          description: Update transaction attributes
           required: true
           schema:
-            $ref: '#/definitions/TransactionUpdate'
+            $ref: "#/definitions/EditTransaction"
       produces:
         - application/json
       responses:
-        '200':
-          description: Transaction updated successfully
+        "200":
+          description: Transaction successfully updated
           schema:
-            $ref: '#/definitions/Transaction'
-        '400':
-          description: Invalid request parameters
-        '404':
-          description: Transaction not found
-        '500':
+            $ref: "#/definitions/Transaction"
+        "400":
+          description: Invalid fields
+        "401":
+          description: Unauthorized user
+        "500":
           description: Internal server error
     delete:
+      security:
+        - Bearer: []
       tags:
-        - Transactions
-      summary: Delete transaction details
-      description: Delete details of a specific transaction
-      parameters:
-        - in: path
-          name: transactionId
-          required: true
-          type: string
-          description: ID of the transaction to delete
+        - Transaction Module
+      summary: Delete transaction information
+      description: API to delete information (such as note or category) from a transaction without deleting the transaction itself
       produces:
         - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Information to delete (such as note or category)
+          required: true
+          schema:
+            $ref: "#/definitions/DeleteTransactionInfo"
       responses:
-        '200':
-          description: Transaction deleted successfully
-        '404':
-          description: Transaction not found
-        '500':
+        "200":
+          description: Transaction information successfully deleted
+        "400":
+          description: Invalid fields
+        "401":
+          description: Unauthorized user
+        "404":
+          description: Invalid transaction ID
+        "500":
           description: Internal server error
 definitions:
+  AccountTransactions:
+    type: object
+    properties:
+      accountId:
+        type: string
+      transactions:
+        type: array
+        items:
+          $ref: "#/definitions/Transaction"
   Transaction:
     type: object
     properties:
       id:
         type: string
-        description: Transaction ID
-      accountId:
-        type: string
-        description: Account ID associated with the transaction
       amount:
         type: number
-        description: Transaction amount
       date:
         type: string
         format: date-time
-        description: Transaction date
-      description:
+      category:
         type: string
-        description: Transaction description
-  TransactionUpdate:
+      note:
+        type: string
+  EditTransaction:
     type: object
     properties:
-      amount:
-        type: number
-        description: Transaction amount
-      description:
+      category:
         type: string
-        description: Transaction description
-
+      note:
+        type: string
+  DeleteTransactionInfo:
+    type: object
+    properties:
+      category:
+        type: string
+      note:
+        type: string

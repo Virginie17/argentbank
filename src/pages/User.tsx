@@ -3,8 +3,11 @@ import { RootState } from '../store';
 import { useSelector, useDispatch } from 'react-redux';
 import { authActions } from '../store/auth';
 
+
 const User: FC = () => {
   const dispatch = useDispatch();
+  
+  // Sélectionne les informations de l'utilisateur depuis le store Redux
   const user = useSelector((state: RootState) => state.auth?.user) as {
     token: string | null;
     id: string | null;
@@ -14,11 +17,13 @@ const User: FC = () => {
     lastName: string | null;
   };
 
+  // États locaux pour gérer l'édition des informations utilisateur
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [newUsername, setNewUsername] = useState<string>(user?.displayableName || '');
   const [newFirstName, setNewFirstName] = useState<string>(user?.firstName || '');
   const [newLastName, setNewLastName] = useState<string>(user?.lastName || '');
 
+  // Utilise useEffect pour récupérer les informations de l'utilisateur lorsque le token change
   useEffect(() => {
     if (user?.token) {
       fetch('http://localhost:3001/api/v1/user/profile', {
@@ -30,6 +35,7 @@ const User: FC = () => {
       })
         .then((response) => response.json())
         .then((data) => {
+          // Met à jour le store Redux avec les nouvelles informations utilisateur
           dispatch(authActions.login(data));
         })
         .catch((error) => {
@@ -38,6 +44,7 @@ const User: FC = () => {
     }
   }, [user?.token, dispatch]);
 
+  // Fonction pour activer le mode édition et initialiser les champs avec les valeurs actuelles
   const handleEditing = () => {
     setNewUsername(user?.displayableName || '');
     setNewFirstName(user?.firstName || '');
@@ -45,9 +52,10 @@ const User: FC = () => {
     setIsEditing(true);
   };
 
+  // Fonction pour envoyer les nouvelles informations utilisateur à l'API
   const changeUsername = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/v1/user/profile', {
+      const response = await fetch('http://localhost:3001/api/v1/users/{userID}', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -66,6 +74,7 @@ const User: FC = () => {
       }
 
       const data = await response.json();
+      // Met à jour le store Redux avec les nouvelles informations utilisateur
       dispatch(authActions.login(data));
       setIsEditing(false);
       console.log('Username updated successfully:', data);
@@ -74,6 +83,7 @@ const User: FC = () => {
     }
   };
 
+  // Fonction pour sauvegarder les nouvelles informations utilisateur
   const handleSaveNewUsername = async () => {
     if (newUsername.trim().length < 2 || newFirstName.trim().length < 2 || newLastName.trim().length < 2) {
       return;
@@ -86,6 +96,7 @@ const User: FC = () => {
     }
   };
 
+  // Fonction pour gérer les changements dans les champs de saisie
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>, field: string) => {
     if (field === 'username') {
       setNewUsername(e.target.value);
@@ -147,19 +158,19 @@ const User: FC = () => {
                 </div>
               </div>
               <div className="edit-button-container">
-  <button
-    className="edit-button edit-button--save"
-    onClick={handleSaveNewUsername}
-  >
-    Save
-  </button>
-  <button
-    className="edit-button edit-button--cancel"
-    onClick={() => setIsEditing(false)}
-  >
-    Cancel
-  </button>
-</div>
+                <button
+                  className="edit-button edit-button--save"
+                  onClick={handleSaveNewUsername}
+                >
+                  Save
+                </button>
+                <button
+                  className="edit-button edit-button--cancel"
+                  onClick={() => setIsEditing(false)}
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           ) : (
             <>
