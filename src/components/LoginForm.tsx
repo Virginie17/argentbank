@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { authActions } from '../store/auth';
-import { ILogin, IProfile }  from '../types/user.type';
+import { ILogin, IProfile } from '../types/user.type';
 import InputValidator from '../components/InputValidator';
 import Input from '../components/Input';
 import { fetchUser } from '../services/userService';
@@ -17,11 +17,9 @@ const LoginForm: React.FC = () => {
 
   const [isUser, setIsUser] = useState<boolean>(true);
 
-  // Gestionnaire de soumission du formulaire
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // Récupération des valeurs des champs de saisie
     const formValues = {
       email: enteredUsernameInputRef.current?.value,
       password: enteredPasswordInputRef.current?.value,
@@ -29,7 +27,6 @@ const LoginForm: React.FC = () => {
     };
 
     try {
-      // Envoi de la requête de connexion à l'API
       const response = await fetch('http://localhost:3001/api/v1/user/login', {
         method: 'POST',
         headers: {
@@ -37,24 +34,24 @@ const LoginForm: React.FC = () => {
         },
         body: JSON.stringify(formValues),
       });
- // Vérification du statut de la réponse
+
       if (response.status !== 200) {
-        setIsUser(false);// Mise à jour de l'état si l'utilisateur n'est pas valide
+        setIsUser(false);
         return;
       }
 
-      const data = await response.json(); // Conversion de la réponse en JSON
-      const expirationTime = new Date(new Date().getTime() + 86400 * 1000); // Définition de l'expiration du token (1 jour)
+      const data = await response.json();
+      const expirationTime = new Date(new Date().getTime() + 86400 * 1000);
       const payload: ILogin = {
+        token: data.body.token,
+        expirationTime: expirationTime.toISOString(),
         userName: formValues.email!,
         password: formValues.password!,
         rememberMe: rememberMeValueRef.current?.value === 'true',
-        token: data.body.token,
-        expirationTime: expirationTime.toISOString(),
       };
 
-      setIsUser(true);// Mise à jour de l'état si l'utilisateur est valide
-      dispatch(authActions.login(payload));// Dispatch de l'action de connexion
+      setIsUser(true);
+      dispatch(authActions.login(payload));
       const userData: IProfile = await fetchUser(data.body.token);
       dispatch(
         authActions.getProfile({
@@ -65,7 +62,7 @@ const LoginForm: React.FC = () => {
           lastName: userData.lastName,
         })
       );
-      navigate('/user', { replace: true }); // Navigation vers la page utilisateur
+      navigate('/user', { replace: true });
       
     } catch {
       setIsUser(false);

@@ -3,11 +3,8 @@ import { RootState } from '../store';
 import { useSelector, useDispatch } from 'react-redux';
 import { authActions } from '../store/auth';
 
-
 const User: FC = () => {
   const dispatch = useDispatch();
-  
-  // Sélectionne les informations de l'utilisateur depuis le store Redux
   const user = useSelector((state: RootState) => state.auth?.user) as {
     token: string | null;
     id: string | null;
@@ -17,94 +14,112 @@ const User: FC = () => {
     lastName: string | null;
   };
 
-  // États locaux pour gérer l'édition des informations utilisateur
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [newUsername, setNewUsername] = useState<string>(user?.displayableName || '');
-  const [newFirstName, setNewFirstName] = useState<string>(user?.firstName || '');
-  const [newLastName, setNewLastName] = useState<string>(user?.lastName || '');
+  const [formData, setFormData] = useState<{
+    displayableName: string;
+    firstName: string;
+    lastName: string;
+  }>({
+    displayableName: user?.displayableName || '',
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+  });
 
-  // Utilise useEffect pour récupérer les informations de l'utilisateur lorsque le token change
   useEffect(() => {
-    if (user?.token) {
-      fetch('http://localhost:3001/api/v1/user/profile', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${user.token}`,
-        },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          // Met à jour le store Redux avec les nouvelles informations utilisateur
-          dispatch(authActions.login(data));
-        })
-        .catch((error) => {
-          console.error('Error:', error);
+    const fetchUserData = async (token: string) => {
+      try {
+        console.log("API Request: Fetching user data with token:", token);
+        const response = await fetch('http://localhost:3001/api/v1/user/profile', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
         });
+
+        if (!response.ok) throw new Error(response.statusText);
+
+        const data = await response.json();
+        console.log("User data fetched successfully:", data);
+        dispatch(authActions.getProfile(data));
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    if (user?.token) {
+      console.log("Fetching user data...");
+      fetchUserData(user.token);
+    } else {
+      console.log("User token not found");
+      // Handle the case where the token is not found, e.g., redirect to login
     }
   }, [user?.token, dispatch]);
 
-  // Fonction pour activer le mode édition et initialiser les champs avec les valeurs actuelles
-  const handleEditing = () => {
-    setNewUsername(user?.displayableName || '');
-    setNewFirstName(user?.firstName || '');
-    setNewLastName(user?.lastName || '');
-    setIsEditing(true);
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    console.log("Input change detected:", e.target.name, e.target.value);
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Fonction pour envoyer les nouvelles informations utilisateur à l'API
-  const changeUsername = async () => {
+  const handleSave = async () => {
+    if (!validateForm()) {
+      console.log("Form validation failed:", formData);
+      return;
+    }
+
     try {
-      const response = await fetch('http://localhost:3001/api/v1/users/{userID}', {
+      console.log("Saving user data:", formData);
+      await updateUserData();
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Failed to save data:', error);
+    }
+  };
+
+  const updateUserData = async () => {
+    if (!user?.token) {
+      console.log("User token not found");
+      // Handle the case where the token is not found, e.g., redirect to login
+      return;
+    }
+    try {
+      console.log("API Request: Updating user data:", formData);
+      const response = await fetch(`http://localhost:3001/api/v1/user/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${user?.token}`,
         },
-        body: JSON.stringify({
-          displayableName: newUsername,
-          firstName: newFirstName,
-          lastName: newLastName,
-        }),
+        body: JSON.stringify(formData),
       });
 
-      if (!response.ok) {
-        console.error('Error:', response.statusText);
-        return;
-      }
+      if (!response.ok) throw new Error(response.statusText);
 
       const data = await response.json();
-      // Met à jour le store Redux avec les nouvelles informations utilisateur
-      dispatch(authActions.login(data));
-      setIsEditing(false);
-      console.log('Username updated successfully:', data);
+      console.log("User data updated successfully:", data);
+      dispatch(authActions.getProfile(data));
     } catch (error) {
-      console.error('Failed to change username:', error);
+      console.error('Error updating user data:', error);
     }
   };
 
-  // Fonction pour sauvegarder les nouvelles informations utilisateur
-  const handleSaveNewUsername = async () => {
-    if (newUsername.trim().length < 2 || newFirstName.trim().length < 2 || newLastName.trim().length < 2) {
-      return;
-    }
-    try {
-      await changeUsername();
-      setIsEditing(false);
-    } catch (error) {
-      console.error("Failed to save new username:", error);
-    }
+  const validateForm = () => {
+    const isValid = formData.displayableName.trim().length >= 2 &&
+                    formData.firstName.trim().length >= 2 &&
+                    formData.lastName.trim().length >= 2;
+
+    console.log("Form validation result:", isValid);
+    return isValid;
   };
 
-  // Fonction pour gérer les changements dans les champs de saisie
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>, field: string) => {
-    if (field === 'username') {
-      setNewUsername(e.target.value);
-    } else if (field === 'firstName') {
-      setNewFirstName(e.target.value);
-    } else if (field === 'lastName') {
-      setNewLastName(e.target.value);
-    }
+  const handleEdit = () => {
+    console.log("Edit mode activated");
+    setIsEditing(true);
+    setFormData({
+      displayableName: user?.displayableName || '',
+      firstName: user?.firstName || '',
+      lastName: user?.lastName || '',
+    });
   };
 
   return (
@@ -120,72 +135,37 @@ const User: FC = () => {
             <div className="edit-user-info-container">
               <div className="edit-user-info">
                 <h1>Edit user info</h1>
-                <div>
-                  <label htmlFor="username">User Name:</label>
-                  <input
-                    className="edit-username-input"
-                    type="text"
-                    value={newUsername}
-                    onChange={(e) => handleInputChange(e, 'username')}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        handleSaveNewUsername();
-                      }
-                      if (e.key === "Escape" || e.key === "Esc") {
-                        setIsEditing(false);
-                      }
-                    }}
-                    autoFocus
-                  />
-                </div>
-                <div>
-                  <label htmlFor="firstname">First Name:</label>
-                  <input
-                    className="edit-username-input"
-                    type="text"
-                    value={newFirstName}
-                    readOnly
-                  />
-                </div>
-                <div>
-                  <label htmlFor="lastname">Last Name:</label>
-                  <input
-                    className="edit-username-input"
-                    type="text"
-                    value={newLastName}
-                    readOnly
-                  />
-                </div>
+                {(['displayableName', 'firstName', 'lastName'] as const).map((field) => (
+                  <div key={field}>
+                    <label htmlFor={field}>{field}:</label>
+                    <input
+                      className="edit-username-input"
+                      type="text"
+                      name={field}
+                      value={formData[field]}
+                      onChange={handleInputChange}
+                      readOnly={field !== 'displayableName'}
+                      autoFocus={field === 'displayableName'}
+                    />
+                  </div>
+                ))}
               </div>
               <div className="edit-button-container">
-                <button
-                  className="edit-button edit-button--save"
-                  onClick={handleSaveNewUsername}
-                >
+                <button className="edit-button edit-button--save" onClick={handleSave}>
                   Save
                 </button>
-                <button
-                  className="edit-button edit-button--cancel"
-                  onClick={() => setIsEditing(false)}
-                >
+                <button className="edit-button edit-button--cancel" onClick={() => setIsEditing(false)}>
                   Cancel
                 </button>
               </div>
             </div>
           ) : (
             <>
-              <h1>
-                Welcome back
-                <br />
-                {`${user?.displayableName || "[Username]"}`} !
-              </h1>
-              <button className="edit-button" onClick={handleEditing}>
-                Edit Name
-              </button>
+              <h1>Welcome back <br />{user?.displayableName || "[Username]"}!</h1>
+              <button className="edit-button" onClick={handleEdit}>Edit Name</button>
             </>
           )}
         </div>
-        
         <h2 className="sr-only">Accounts</h2>
         <section className="account">
           <div className="account-content-wrapper">
