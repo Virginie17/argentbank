@@ -16,11 +16,11 @@ const User: FC = () => {
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [formData, setFormData] = useState<{
-    displayableName: string;
+    userName: string;
     firstName: string;
     lastName: string;
   }>({
-    displayableName: user?.displayableName || '',
+    userName: user?.displayableName || '',
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
   });
@@ -30,7 +30,7 @@ const User: FC = () => {
       try {
         console.log("API Request: Fetching user data with token:", token);
         const response = await fetch('http://localhost:3001/api/v1/user/profile', {
-          method: 'GET',
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
@@ -41,7 +41,7 @@ const User: FC = () => {
 
         const data = await response.json();
         console.log("User data fetched successfully:", data);
-        dispatch(authActions.getProfile(data));
+        dispatch(authActions.getProfile(data.body));
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
@@ -52,9 +52,17 @@ const User: FC = () => {
       fetchUserData(user.token);
     } else {
       console.log("User token not found");
-      // Handle the case where the token is not found, e.g., redirect to login
     }
   }, [user?.token, dispatch]);
+
+  useEffect(() => {
+    console.log("User data updated:", user);
+    setFormData({
+      userName: user?.displayableName || '',
+      firstName: user?.firstName || '',
+      lastName: user?.lastName || '',
+    });
+  }, [user]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     console.log("Input change detected:", e.target.name, e.target.value);
@@ -75,36 +83,13 @@ const User: FC = () => {
       console.error('Failed to save data:', error);
     }
   };
+  
 
   const updateUserData = async () => {
-    if (!user?.token) {
-      console.log("User token not found");
-      // Handle the case where the token is not found, e.g., redirect to login
-      return;
-    }
-    try {
-      console.log("API Request: Updating user data:", formData);
-      const response = await fetch(`http://localhost:3001/api/v1/user/profile`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${user?.token}`,
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) throw new Error(response.statusText);
-
-      const data = await response.json();
-      console.log("User data updated successfully:", data);
-      dispatch(authActions.getProfile(data));
-    } catch (error) {
-      console.error('Error updating user data:', error);
-    }
-  };
-
+    console.log(formData)
+  }
   const validateForm = () => {
-    const isValid = formData.displayableName.trim().length >= 2 &&
+    const isValid = formData.userName.trim().length >= 2 &&
                     formData.firstName.trim().length >= 2 &&
                     formData.lastName.trim().length >= 2;
 
@@ -116,7 +101,7 @@ const User: FC = () => {
     console.log("Edit mode activated");
     setIsEditing(true);
     setFormData({
-      displayableName: user?.displayableName || '',
+      userName: user?.displayableName || '',
       firstName: user?.firstName || '',
       lastName: user?.lastName || '',
     });
@@ -135,17 +120,17 @@ const User: FC = () => {
             <div className="edit-user-info-container">
               <div className="edit-user-info">
                 <h1>Edit user info</h1>
-                {(['displayableName', 'firstName', 'lastName'] as const).map((field) => (
+                {(['username', 'firstName', 'lastName'] as const).map((field) => (
                   <div key={field}>
                     <label htmlFor={field}>{field}:</label>
                     <input
                       className="edit-username-input"
                       type="text"
                       name={field}
-                      value={formData[field]}
+                      value={formData[field === 'username' ? 'userName' : field]}
                       onChange={handleInputChange}
-                      readOnly={field !== 'displayableName'}
-                      autoFocus={field === 'displayableName'}
+                      readOnly={field !== 'username'}
+                      autoFocus={field === 'username'}
                     />
                   </div>
                 ))}

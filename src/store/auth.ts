@@ -11,6 +11,7 @@ const initialState: SliceState = {
     firstName: null,
     lastName: null
   },
+  
 };
 
 const authSlice = createSlice({
@@ -26,11 +27,13 @@ const authSlice = createSlice({
     },
     getProfile(state, action: PayloadAction<IProfile>) {
       const payload = action.payload;
+      state.user = state.user || {};
       state.user.id = payload.id;
       state.user.displayableName = payload.userName;
       state.user.email = payload.email;
       state.user.firstName = payload.firstName;
       state.user.lastName = payload.lastName;
+      
     },
     retrieveStoredToken(state) {
       const token = localStorage.getItem("token");
