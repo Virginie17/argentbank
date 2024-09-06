@@ -2,7 +2,6 @@ import { FC, useState, useEffect, ChangeEvent } from 'react';
 import { RootState } from '../store';
 import { useSelector, useDispatch } from 'react-redux';
 import { authActions } from '../store/auth';
-
 const User: FC = () => {
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth?.user) as {
@@ -13,7 +12,6 @@ const User: FC = () => {
     firstName: string | null;
     lastName: string | null;
   };
-
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [formData, setFormData] = useState<{
     userName: string;
@@ -24,7 +22,6 @@ const User: FC = () => {
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
   });
-
   useEffect(() => {
     const fetchUserData = async (token: string) => {
       try {
@@ -36,9 +33,7 @@ const User: FC = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-
         if (!response.ok) throw new Error(response.statusText);
-
         const data = await response.json();
         console.log("User data fetched successfully:", data);
         dispatch(authActions.getProfile(data.body));
@@ -46,7 +41,6 @@ const User: FC = () => {
         console.error('Error fetching user data:', error);
       }
     };
-
     if (user?.token) {
       console.log("Fetching user data...");
       fetchUserData(user.token);
@@ -54,7 +48,6 @@ const User: FC = () => {
       console.log("User token not found");
     }
   }, [user?.token, dispatch]);
-
   useEffect(() => {
     console.log("User data updated:", user);
     setFormData({
@@ -63,18 +56,15 @@ const User: FC = () => {
       lastName: user?.lastName || '',
     });
   }, [user]);
-
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     console.log("Input change detected:", e.target.name, e.target.value);
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
   const handleSave = async () => {
     if (!validateForm()) {
       console.log("Form validation failed:", formData);
       return;
     }
-
     try {
       console.log("Saving user data:", formData);
       await updateUserData();
@@ -83,20 +73,37 @@ const User: FC = () => {
       console.error('Failed to save data:', error);
     }
   };
-  
-
   const updateUserData = async () => {
-    console.log(formData)
-  }
+    if (!user?.token) {
+      console.log("User token not found");
+      // Handle the case where the token is not found, e.g., redirect to login
+      return;
+    }
+    try {
+      console.log("API Request: Updating user data:", formData);
+      const response = await fetch(`http://localhost:3001/api/v1/user/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user?.token}`,
+        },
+        body: JSON.stringify(formData),
+      });
+      if (!response.ok) throw new Error(response.statusText);
+      const data = await response.json();
+      console.log("User data updated successfully:", data);
+      dispatch(authActions.getProfile(data.body));
+    } catch (error) {
+      console.error('Error updating user data:', error);
+    }
+  };
   const validateForm = () => {
     const isValid = formData.userName.trim().length >= 2 &&
                     formData.firstName.trim().length >= 2 &&
                     formData.lastName.trim().length >= 2;
-
     console.log("Form validation result:", isValid);
     return isValid;
   };
-
   const handleEdit = () => {
     console.log("Edit mode activated");
     setIsEditing(true);
@@ -106,7 +113,6 @@ const User: FC = () => {
       lastName: user?.lastName || '',
     });
   };
-
   return (
     <div>
       <nav className="main-nav">
@@ -120,17 +126,18 @@ const User: FC = () => {
             <div className="edit-user-info-container">
               <div className="edit-user-info">
                 <h1>Edit user info</h1>
-                {(['username', 'firstName', 'lastName'] as const).map((field) => (
+                {(['userName', 'firstName', 'lastName'] as const).map((field) => (
+                  console.log("flied", field),
                   <div key={field}>
                     <label htmlFor={field}>{field}:</label>
                     <input
                       className="edit-username-input"
                       type="text"
                       name={field}
-                      value={formData[field === 'username' ? 'userName' : field]}
+                      value={formData[field]}
                       onChange={handleInputChange}
-                      readOnly={field !== 'username'}
-                      autoFocus={field === 'username'}
+                      readOnly={field !== 'userName'}
+                      autoFocus={field === 'userName'}
                     />
                   </div>
                 ))}
@@ -186,5 +193,4 @@ const User: FC = () => {
     </div>
   );
 };
-
 export default User;
