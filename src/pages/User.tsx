@@ -2,8 +2,12 @@ import { FC, useState, useEffect, ChangeEvent } from 'react';
 import { RootState } from '../store';
 import { useSelector, useDispatch } from 'react-redux';
 import { authActions } from '../store/auth';
+import EditUserForm from '../components/EditUserForm';
+import AccountSection from '../components/AccountSection';
+
+// Définition du composant fonctionnel User
 const User: FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch(); // Utilisation du hook useDispatch pour dispatcher des actions Redux
   const user = useSelector((state: RootState) => state.auth?.user) as {
     token: string | null;
     id: string | null;
@@ -11,23 +15,20 @@ const User: FC = () => {
     email: string | null;
     firstName: string | null;
     lastName: string | null;
-  };
-  const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [formData, setFormData] = useState<{
-    userName: string;
-    firstName: string;
-    lastName: string;
-  }>({
+  }; // Utilisation du hook useSelector pour accéder à l'état utilisateur dans le store Redux
+
+  const [isEditing, setIsEditing] = useState(false); // État local pour gérer le mode édition
+  const [formData, setFormData] = useState({
     userName: user?.displayableName || '',
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
-  });
+  }); // État local pour gérer les données du formulaire
+
   useEffect(() => {
     const fetchUserData = async (token: string) => {
       try {
-        console.log("API Request: Fetching user data with token:", token);
         const response = await fetch('http://localhost:3001/api/v1/user/profile', {
-          method: 'POST',
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
@@ -35,53 +36,38 @@ const User: FC = () => {
         });
         if (!response.ok) throw new Error(response.statusText);
         const data = await response.json();
-        console.log("User data fetched successfully:", data);
-        dispatch(authActions.getProfile(data.body));
+        dispatch(authActions.getProfile(data.body)); // Mise à jour du store Redux avec les données utilisateur
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error(error);
       }
     };
-    if (user?.token) {
-      console.log("Fetching user data...");
-      fetchUserData(user.token);
-    } else {
-      console.log("User token not found");
-    }
+    if (user?.token) fetchUserData(user.token); // Appel de la fonction fetchUserData si le token est présent
   }, [user?.token, dispatch]);
-  useEffect(() => {
-    console.log("User data updated:", user);
-    setFormData({
-      userName: user?.displayableName || '',
-      firstName: user?.firstName || '',
-      lastName: user?.lastName || '',
-    });
-  }, [user]);
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    console.log("Input change detected:", e.target.name, e.target.value);
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+
+  useEffect(() => setFormData({
+    userName: user?.displayableName || '',
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || ''
+  }), [user]);
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const validateForm = () => formData.userName.trim().length >= 2 && formData.firstName.trim().length >= 2 && formData.lastName.trim().length >= 2;
+
   const handleSave = async () => {
-    if (!validateForm()) {
-      console.log("Form validation failed:", formData);
-      return;
-    }
+    if (!validateForm()) return; // Validation du formulaire
     try {
-      console.log("Saving user data:", formData);
-      await updateUserData();
-      setIsEditing(false);
+      await updateUserData(); // Mise à jour des données utilisateur
+      setIsEditing(false); // Désactivation du mode édition
     } catch (error) {
-      console.error('Failed to save data:', error);
+      console.error(error);
     }
   };
+
   const updateUserData = async () => {
-    if (!user?.token) {
-      console.log("User token not found");
-      // Handle the case where the token is not found, e.g., redirect to login
-      return;
-    }
+    if (!user?.token) return; // Vérification de la présence du token
     try {
-      console.log("API Request: Updating user data:", formData);
-      const response = await fetch(`http://localhost:3001/api/v1/user/profile`, {
+      const response = await fetch('http://localhost:3001/api/v1/user/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -91,21 +77,13 @@ const User: FC = () => {
       });
       if (!response.ok) throw new Error(response.statusText);
       const data = await response.json();
-      console.log("User data updated successfully:", data);
-      dispatch(authActions.getProfile(data.body));
+      dispatch(authActions.getProfile(data.body)); // Mise à jour du store Redux avec les nouvelles données utilisateur
     } catch (error) {
-      console.error('Error updating user data:', error);
+      console.error(error);
     }
   };
-  const validateForm = () => {
-    const isValid = formData.userName.trim().length >= 2 &&
-                    formData.firstName.trim().length >= 2 &&
-                    formData.lastName.trim().length >= 2;
-    console.log("Form validation result:", isValid);
-    return isValid;
-  };
+
   const handleEdit = () => {
-    console.log("Edit mode activated");
     setIsEditing(true);
     setFormData({
       userName: user?.displayableName || '',
@@ -113,6 +91,7 @@ const User: FC = () => {
       lastName: user?.lastName || '',
     });
   };
+
   return (
     <div>
       <nav className="main-nav">
@@ -123,34 +102,12 @@ const User: FC = () => {
       <main className="main bg-dark">
         <div className="header">
           {isEditing ? (
-            <div className="edit-user-info-container">
-              <div className="edit-user-info">
-                <h1>Edit user info</h1>
-                {(['userName', 'firstName', 'lastName'] as const).map((field) => (
-                  console.log("flied", field),
-                  <div key={field}>
-                    <label htmlFor={field}>{field}:</label>
-                    <input
-                      className="edit-username-input"
-                      type="text"
-                      name={field}
-                      value={formData[field]}
-                      onChange={handleInputChange}
-                      readOnly={field !== 'userName'}
-                      autoFocus={field === 'userName'}
-                    />
-                  </div>
-                ))}
-              </div>
-              <div className="edit-button-container">
-                <button className="edit-button edit-button--save" onClick={handleSave}>
-                  Save
-                </button>
-                <button className="edit-button edit-button--cancel" onClick={() => setIsEditing(false)}>
-                  Cancel
-                </button>
-              </div>
-            </div>
+            <EditUserForm
+              formData={formData}
+              handleInputChange={handleInputChange}
+              handleSave={handleSave}
+              handleCancel={() => setIsEditing(false)}
+            />
           ) : (
             <>
               <h1>Welcome back <br />{user?.displayableName || "[Username]"}!</h1>
@@ -159,38 +116,12 @@ const User: FC = () => {
           )}
         </div>
         <h2 className="sr-only">Accounts</h2>
-        <section className="account">
-          <div className="account-content-wrapper">
-            <h3 className="account-title">Argent Bank Checking (x8349)</h3>
-            <p className="account-amount">$2,082.79</p>
-            <p className="account-amount-description">Available Balance</p>
-          </div>
-          <div className="account-content-wrapper cta">
-            <button className="transaction-button">View transactions</button>
-          </div>
-        </section>
-        <section className="account">
-          <div className="account-content-wrapper">
-            <h3 className="account-title">Argent Bank Savings (x6712)</h3>
-            <p className="account-amount">$10,928.42</p>
-            <p className="account-amount-description">Available Balance</p>
-          </div>
-          <div className="account-content-wrapper cta">
-            <button className="transaction-button">View transactions</button>
-          </div>
-        </section>
-        <section className="account">
-          <div className="account-content-wrapper">
-            <h3 className="account-title">Argent Bank Credit Card (x8349)</h3>
-            <p className="account-amount">$184.30</p>
-            <p className="account-amount-description">Current Balance</p>
-          </div>
-          <div className="account-content-wrapper cta">
-            <button className="transaction-button">View transactions</button>
-          </div>
-        </section>
+        <AccountSection title="Argent Bank Checking (x8349)" amount="$2,082.79" description="Available Balance" />
+        <AccountSection title="Argent Bank Savings (x6712)" amount="$10,928.42" description="Available Balance" />
+        <AccountSection title="Argent Bank Credit Card (x8349)" amount="$184.30" description="Current Balance" />
       </main>
     </div>
   );
 };
+
 export default User;
