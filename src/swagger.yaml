@@ -8,159 +8,226 @@ host: localhost:3001
 basePath: /api/v1
 schemes:
   - http
+
 paths:
-  /user/{userId}/transactions:
-    parameters:
-      - name: userId
-        in: path
-        description: The ID of the user
-        required: true
-        type: string
+  /user/accounts/{accountId}/transactions:
     get:
-      security:
-        - Bearer: []
       tags:
         - Transaction Module
-      summary: Current month's transactions
-      description: API to retrieve transactions for the current month, grouped by account
+      summary: Retrieve Transactions
+      description: API to view transactions for the current month.
       parameters:
+        - name: accountId
+          in: path
+          required: true
+          description: Unique identifier of the user account.
+          type: string
         - name: month
           in: query
-          description: Month for which to retrieve transactions (YYYY-MM)
           required: false
+          description: Month for which transactions are requested (defaults to current month if not provided).
           type: string
-          default: The current month
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer token to authorize the request.
+          type: string
+
+      security:
+        - bearerAuth: []
+
       responses:
-        "200":
-          description: Transactions successfully retrieved, grouped by account
+        '200':
+          description: Successful retrieval of transactions
           schema:
             type: array
             items:
-              $ref: "#/definitions/AccountTransactions"
-        "400":
-          description: Invalid fields
-        "401":
-          description: Unauthorized user
-        "404":
-          description: Invalid user ID
-        "500":
-          description: Internal server error
-  /user/transaction/{transactionId}:
-    parameters:
-      - name: transactionId
-        in: path
-        description: The ID of the transaction
-        required: true
-        type: string
+              type: object
+              properties:
+                transactionId:
+                  type: number
+                  description: Unique identifier of the transaction.
+                amount:
+                  type: number
+                  format: float
+                  description: Amount of the transaction.
+                date:
+                  type: string
+                  format: date-time
+                  description: Date and time of the transaction.
+                description:
+                  type: object
+                  properties:
+                    title: 
+                      type: string
+                    type: 
+                      type: string
+                    category: 
+                      type: string
+                    note: 
+                      type: string
+                  description: Description of the transaction.
+        '401':
+          description: Unauthorized - Bearer token is missing or invalid.
+        '403':
+          description: Forbidden - The user does not have access to this account's transactions.
+        '500':
+          description: Internal Server Error
+
+  /user/accounts/{accountId}/transactions/{transactionId}:
     get:
-      security:
-        - Bearer: []
       tags:
         - Transaction Module
-      summary: Transaction details
-      description: API to retrieve details of a specific transaction
-      produces:
-        - application/json
+      summary: Retrieve Transaction Details
+      description: API to view details of a specific transaction.
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          description: Unique identifier of the user account.
+          type: string
+        - name: transactionId
+          in: path
+          required: true
+          description: Unique identifier of the transaction.
+          type: string
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer token to authorize the request.
+          type: string
+
+      security:
+        - bearerAuth: []
+
       responses:
-        "200":
-          description: Transaction successfully retrieved
+        '200':
+          description: Successful retrieval of transaction details
           schema:
-            $ref: "#/definitions/Transaction"
-        "401":
-          description: Unauthorized user
-        "404":
-          description: Invalid transaction ID
-        "500":
-          description: Internal server error
+            type: object
+            properties:
+              transactionId:
+                type: number
+                description: Unique identifier of the transaction.
+              amount:
+                type: number
+                format: float
+                description: Amount of the transaction.
+              date:
+                type: string
+                format: date-time
+                description: Date and time of the transaction.
+              description:
+                type: object
+                properties:
+                  title: 
+                    type: string
+                  type: 
+                    type: string
+                  category: 
+                    type: string
+                  note: 
+                    type: string
+                description: Description of the transaction.
+        '401':
+          description: Unauthorized - Bearer token is missing or invalid.
+        '403':
+          description: Forbidden - The user does not have access to this transaction's details.
+        '500':
+          description: Internal Server Error
+
     patch:
-      security:
-        - Bearer: []
       tags:
         - Transaction Module
-      summary: Update a transaction
-      description: API to update transaction information (only category and note can be modified)
+      summary: Update Transaction Information
+      description: API to update details of a specific transaction.
       parameters:
-        - in: body
-          name: body
-          description: Update transaction attributes
+        - name: accountId
+          in: path
+          required: true
+          description: Unique identifier of the user account.
+          type: string
+        - name: transactionId
+          in: path
+          required: true
+          description: Unique identifier of the transaction.
+          type: string
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer token to authorize the request.
+          type: string
+        - name: body
+          in: body
+          description: Payload to update transaction details.
           required: true
           schema:
-            $ref: "#/definitions/EditTransaction"
-      produces:
-        - application/json
+            type: object
+            properties:
+              category:
+                type: string
+              note:
+                type: string
+              
+
+      security:
+        - bearerAuth: []
+
       responses:
-        "200":
-          description: Transaction successfully updated
-          schema:
-            $ref: "#/definitions/Transaction"
-        "400":
-          description: Invalid fields
-        "401":
-          description: Unauthorized user
-        "500":
-          description: Internal server error
+        '204':
+          description: Successful update of transaction details
+        '400':
+          description: Bad Request - The request payload is invalid.
+        '401':
+          description: Unauthorized - Bearer token is missing or invalid.
+        '403':
+          description: Forbidden - The user does not have access to update this transaction.
+        '404':
+          description: Not Found - The transaction does not exist.
+        '500':
+          description: Internal Server Error
+
     delete:
-      security:
-        - Bearer: []
       tags:
         - Transaction Module
-      summary: Delete transaction information
-      description: API to delete information (such as note or category) from a transaction without deleting the transaction itself
-      produces:
-        - application/json
+      summary: Delete Transaction Information
+      description: API to delete specific information from a transaction (not the transaction itself).
       parameters:
-        - in: body
-          name: body
-          description: Information to delete (such as note or category)
+        - name: accountId
+          in: path
           required: true
-          schema:
-            $ref: "#/definitions/DeleteTransactionInfo"
+          description: Unique identifier of the user account.
+          type: string
+        - name: transactionId
+          in: path
+          required: true
+          description: Unique identifier of the transaction.
+          type: string
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer token to authorize the request.
+          type: string
+
+      security:
+        - bearerAuth: []
+
       responses:
-        "200":
-          description: Transaction information successfully deleted
-        "400":
-          description: Invalid fields
-        "401":
-          description: Unauthorized user
-        "404":
-          description: Invalid transaction ID
-        "500":
-          description: Internal server error
-definitions:
-  AccountTransactions:
-    type: object
-    properties:
-      accountId:
-        type: string
-      transactions:
-        type: array
-        items:
-          $ref: "#/definitions/Transaction"
-  Transaction:
-    type: object
-    properties:
-      id:
-        type: string
-      amount:
-        type: number
-      date:
-        type: string
-        format: date-time
-      category:
-        type: string
-      note:
-        type: string
-  EditTransaction:
-    type: object
-    properties:
-      category:
-        type: string
-      note:
-        type: string
-  DeleteTransactionInfo:
-    type: object
-    properties:
-      category:
-        type: string
-      note:
-        type: string
+        '204':
+          description: Successful deletion of specified transaction information
+        '400':
+          description: Bad Request - The request payload is invalid.
+        '401':
+          description: Unauthorized - Bearer token is missing or invalid.
+        '403':
+          description: Forbidden - The user does not have access to delete this transaction's information.
+        '404':
+          description: Not Found - The transaction or the specified fields do not exist.
+        '500':
+          description: Internal Server Error
+
+securityDefinitions:
+  bearerAuth:
+    type: apiKey
+    name: Authorization
+    in: header
