@@ -44,8 +44,8 @@ const App: React.FC = () => {
     <BrowserRouter>
       <Header />
       <Routes>
-        {/* Route pour la page d'accueil, accessible uniquement si non authentifié */}
-        {!isAuthenticated && <Route path="/" element={<Home />} />}
+        {/* Route pour la page d'accueil, accessible à tous */}
+        <Route path="/" element={<Home />} />
         {/* Route pour la page de connexion */}
         {!isAuthenticated ? (
           <Route path="/sign-in" element={<Login />} />
@@ -65,6 +65,5 @@ const App: React.FC = () => {
     </BrowserRouter>
   );
 };
-
 
 export default App;

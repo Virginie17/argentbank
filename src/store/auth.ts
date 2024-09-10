@@ -55,6 +55,11 @@ const authSlice = createSlice({
     setUserName(state, action: PayloadAction<string>) {
       state.user.displayableName = action.payload; // Met à jour le nom affichable de l'utilisateur
     },
+    // Fonction updateUser qui met à jour l'état utilisateur dans le store Redux
+updateUser(state, action: PayloadAction<SliceState>) {
+  // Met à jour la propriété 'user' de l'état avec la valeur de 'user' dans le payload de l'action
+  state.user = action.payload.user;
+},
   },
 });
 
