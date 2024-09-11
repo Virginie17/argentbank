@@ -28,7 +28,7 @@ const User: FC = () => {
     const fetchUserData = async (token: string) => {
       try {
         const response = await fetch('http://localhost:3001/api/v1/user/profile', {
-          method: 'GET',
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
