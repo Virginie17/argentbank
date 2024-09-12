@@ -9,7 +9,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
-// Affichage de l'application
+
 root.render(
   <React.StrictMode>
     <Provider store={store}>

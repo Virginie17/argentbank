@@ -11,50 +11,47 @@ import { RootState } from "./store/index";
 
 
 const App: React.FC = () => {
-  const token = localStorage.getItem("token"); // Récupération du token depuis le localStorage
-  const dispatch = useDispatch(); // Hook pour dispatcher des actions Redux
+  const token = localStorage.getItem("token"); 
+  const dispatch = useDispatch(); 
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated
-  ); // Sélection de l'état d'authentification depuis le store Redux
+  ); 
 
   // Effet pour vérifier le token à chaque rendu du composant
   useEffect(() => {
-    if (!token) return; // Si pas de token, on ne fait rien
+    if (!token) return; 
 
     // Fonction pour vérifier la validité du token
     const tokenCheckerHandler: () => void = () => {
       const nowTime: number = new Date().getTime(); 
       const storedExpirationTime: string | null =
-        localStorage.getItem("expirationTime"); // Récupération de la date d'expiration du token
+        localStorage.getItem("expirationTime"); 
 
       if (storedExpirationTime !== null) {
         const expirationDate: number = new Date(storedExpirationTime).getTime(); 
         if (nowTime > expirationDate) {
-          dispatch(authActions.logout()); // Si le token est expiré, déconnexion
+          dispatch(authActions.logout()); 
         } else {
-          dispatch(authActions.retrieveStoredToken()); // Sinon, récupération du token stocké
+          dispatch(authActions.retrieveStoredToken()); 
         }
       }
     };
 
-    tokenCheckerHandler(); // Appel de la fonction de vérification du token
+    tokenCheckerHandler(); 
   }, [dispatch, token]);
 
   return (
     <BrowserRouter>
       <Header />
       <Routes>
-        {/* Route pour la page d'accueil, accessible à tous */}
+        
         <Route path="/" element={<Home />} />
-        {/* Route pour la page de connexion */}
         {!isAuthenticated ? (
           <Route path="/sign-in" element={<Login />} />
         ) : (
           <Route path="/user" element={<User />} />
         )}
-        {/* Route pour la page utilisateur, accessible uniquement si authentifié */}
         {isAuthenticated && <Route path="/user" element={<User />} />}
-        {/* Redirection vers la page utilisateur si authentifié, sinon vers la page de connexion */}
         {isAuthenticated ? (
           <Route path="*" element={<Navigate to="/user" replace />} />
         ) : (

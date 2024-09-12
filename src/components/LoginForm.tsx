@@ -5,7 +5,7 @@ import { authActions } from '../store/auth';
 import { ILogin, IProfile } from '../types/user.type';
 import InputValidator from '../components/InputValidator';
 import Input from '../components/Input';
-import { fetchUser } from '../services/UserService';
+import { fetchUser } from '../services/userService';
 
 const LoginForm: React.FC = () => {
   // Références pour les champs de saisie
@@ -13,14 +13,13 @@ const LoginForm: React.FC = () => {
   const enteredPasswordInputRef = useRef<HTMLInputElement>(null);
   const rememberMeValueRef = useRef<HTMLInputElement>(null);
 
-  const navigate = useNavigate(); // Hook pour la navigation
-  const dispatch = useDispatch(); // Hook pour dispatcher des actions Redux
+  const navigate = useNavigate(); 
+  const dispatch = useDispatch(); 
 
-  const [isUser, setIsUser] = useState<boolean>(true); // État pour vérifier si l'utilisateur est valide
-
+  const [isUser, setIsUser] = useState<boolean>(true); 
   // Fonction de gestion de la soumission du formulaire
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault(); // Empêche le rechargement de la page
+    event.preventDefault(); 
 
     // Récupération des valeurs du formulaire
     const formValues = {
@@ -30,7 +29,7 @@ const LoginForm: React.FC = () => {
     };
 
     try {
-      // Envoi de la requête de connexion
+      
       const response = await fetch('http://localhost:3001/api/v1/user/login', {
         method: 'POST',
         headers: {
@@ -40,12 +39,12 @@ const LoginForm: React.FC = () => {
       });
 
       if (response.status !== 200) {
-        setIsUser(false); // Si la réponse n'est pas OK, l'utilisateur n'est pas valide
+        setIsUser(false); 
         return;
       }
 
       const data = await response.json();
-      const expirationTime = new Date(new Date().getTime() + 86400 * 1000); // Calcul du temps d'expiration du token
+      const expirationTime = new Date(new Date().getTime() + 86400 * 1000); 
       const payload: ILogin = {
         token: data.body.token,
         expirationTime: expirationTime.toISOString(),
@@ -54,9 +53,8 @@ const LoginForm: React.FC = () => {
         rememberMe: rememberMeValueRef.current?.value === 'true',
       };
 
-      setIsUser(true); // L'utilisateur est valide
-      dispatch(authActions.login(payload)); // Dispatch de l'action de connexion
-
+      setIsUser(true); 
+      dispatch(authActions.login(payload)); 
       // Récupération des données de profil de l'utilisateur
       const userData: IProfile = await fetchUser(data.body.token);
       dispatch(
@@ -69,10 +67,10 @@ const LoginForm: React.FC = () => {
         })
       );
 
-      navigate('/user', { replace: true }); // Navigation vers la page utilisateur
+      navigate('/user', { replace: true }); 
       
     } catch {
-      setIsUser(false); // En cas d'erreur, l'utilisateur n'est pas valide
+      setIsUser(false); 
     }
   };
 

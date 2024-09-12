@@ -1,6 +1,6 @@
 import { FC } from "react";
 
-//interfce pour les props du composant Navbar
+
 interface NavI {
   children: React.ReactNode;
 }

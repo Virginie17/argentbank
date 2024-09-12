@@ -5,7 +5,7 @@ import { authActions } from '../store/auth';
 import EditUserForm from '../components/EditUserForm';
 import AccountSection from '../components/AccountSection';
 
-// Définition du composant fonctionnel User
+
 const User: FC = () => {
   const dispatch = useDispatch(); // Utilisation du hook useDispatch pour dispatcher des actions Redux
   const user = useSelector((state: RootState) => state.auth?.user) as {
@@ -17,13 +17,12 @@ const User: FC = () => {
     lastName: string | null;
   }; // Utilisation du hook useSelector pour accéder à l'état utilisateur dans le store Redux
 
-  const [isEditing, setIsEditing] = useState(false); // État local pour gérer le mode édition
+  const [isEditing, setIsEditing] = useState(false); 
   const [formData, setFormData] = useState({
     userName: user?.displayableName || '',
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
-  }); // État local pour gérer les données du formulaire
-
+  }); 
   useEffect(() => {
     const fetchUserData = async (token: string) => {
       try {
@@ -36,12 +35,12 @@ const User: FC = () => {
         });
         if (!response.ok) throw new Error(response.statusText);
         const data = await response.json();
-        dispatch(authActions.getProfile(data.body)); // Mise à jour du store Redux avec les données utilisateur
+        dispatch(authActions.getProfile(data.body)); 
       } catch (error) {
         console.error(error);
       }
     };
-    if (user?.token) fetchUserData(user.token); // Appel de la fonction fetchUserData si le token est présent
+    if (user?.token) fetchUserData(user.token); 
   }, [user?.token, dispatch]);
 
   useEffect(() => setFormData({
@@ -55,17 +54,17 @@ const User: FC = () => {
   const validateForm = () => formData.userName.trim().length >= 2 && formData.firstName.trim().length >= 2 && formData.lastName.trim().length >= 2;
 
   const handleSave = async () => {
-    if (!validateForm()) return; // Validation du formulaire
+    if (!validateForm()) return; 
     try {
-      await updateUserData(); // Mise à jour des données utilisateur
-      setIsEditing(false); // Désactivation du mode édition
+      await updateUserData(); 
+      setIsEditing(false); 
     } catch (error) {
       console.error(error);
     }
   };
 
   const updateUserData = async () => {
-    if (!user?.token) return; // Vérification de la présence du token
+    if (!user?.token) return; 
     try {
       const response = await fetch('http://localhost:3001/api/v1/user/profile', {
         method: 'PUT',
