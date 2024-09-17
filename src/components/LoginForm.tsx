@@ -25,7 +25,7 @@ const LoginForm: React.FC = () => {
     const formValues = {
       email: enteredUsernameInputRef.current?.value,
       password: enteredPasswordInputRef.current?.value,
-      rememberMe: Boolean(rememberMeValueRef.current?.value),
+      rememberMe: rememberMeValueRef.current?.checked,
     };
 
     try {
@@ -50,7 +50,7 @@ const LoginForm: React.FC = () => {
         expirationTime: expirationTime.toISOString(),
         userName: formValues.email!,
         password: formValues.password!,
-        rememberMe: rememberMeValueRef.current?.value === 'true',
+        rememberMe: formValues.rememberMe!
       };
 
       setIsUser(true); 
@@ -66,9 +66,13 @@ const LoginForm: React.FC = () => {
           lastName: userData.lastName,
         })
       );
-
+// Stocker le jeton en fonction de "Remember Me"
+if (formValues.rememberMe) {
+  localStorage.setItem('token', data.body.token);
+} else {
+  sessionStorage.setItem('token', data.body.token);
       navigate('/user', { replace: true }); 
-      
+    }
     } catch {
       setIsUser(false); 
     }
